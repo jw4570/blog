@@ -313,13 +313,13 @@ export const openCodeSidePanel = ({
   const backdrop = document.createElement('button')
   backdrop.type = 'button'
   backdrop.className = 'code-side-panel-backdrop'
-  backdrop.setAttribute('aria-label', '关闭代码预览侧栏')
+  backdrop.setAttribute('aria-label', '코드 미리보기 닫기')
   backdrop.addEventListener('click', closeCodeSidePanel)
 
   const drawer = document.createElement('aside')
   drawer.className = 'code-side-panel-drawer'
   drawer.setAttribute('role', 'dialog')
-  drawer.setAttribute('aria-label', '代码预览侧栏')
+  drawer.setAttribute('aria-label', '코드 미리보기')
   drawer.setAttribute('aria-modal', 'true')
 
   const header = document.createElement('div')
@@ -334,7 +334,7 @@ export const openCodeSidePanel = ({
 
   const meta = document.createElement('div')
   meta.className = 'code-side-panel-meta'
-  meta.textContent = lineCount ? `${lineCount} lines` : ''
+  meta.textContent = lineCount ? `${lineCount}줄` : ''
 
   heading.appendChild(title)
   heading.appendChild(meta)
@@ -345,7 +345,7 @@ export const openCodeSidePanel = ({
   const copyButton = document.createElement('button')
   copyButton.type = 'button'
   copyButton.className = 'code-side-panel-copy'
-  copyButton.textContent = '复制'
+  copyButton.textContent = '복사'
   const copyCode = async () => {
     const originalText = copyButton.textContent
 
@@ -354,9 +354,9 @@ export const openCodeSidePanel = ({
         throw new Error('Clipboard unavailable')
       }
       await navigator.clipboard.writeText(text)
-      copyButton.textContent = '已复制'
+      copyButton.textContent = '복사했어요'
     } catch {
-      copyButton.textContent = '复制失败'
+      copyButton.textContent = '복사하지 못했어요'
     }
 
     window.setTimeout(() => {
@@ -370,8 +370,8 @@ export const openCodeSidePanel = ({
   const closeButton = document.createElement('button')
   closeButton.type = 'button'
   closeButton.className = 'code-side-panel-close'
-  closeButton.setAttribute('aria-label', '关闭代码预览侧栏')
-  closeButton.textContent = '关闭'
+  closeButton.setAttribute('aria-label', '코드 미리보기 닫기')
+  closeButton.textContent = '닫기'
   closeButton.addEventListener('click', closeCodeSidePanel)
 
   actions.appendChild(copyButton)
@@ -455,8 +455,8 @@ const createCodeSidePanelButton = ({ language, label, lineCount, code }) => {
   const button = document.createElement('button')
   button.type = 'button'
   button.className = 'collapse-side-panel-button'
-  button.textContent = '在侧栏查看'
-  button.setAttribute('aria-label', `在侧栏查看 ${label}`)
+  button.textContent = '코드 크게 보기'
+  button.setAttribute('aria-label', `코드 크게 보기 ${label}`)
   button.addEventListener('click', event => {
     event.stopPropagation()
     openCodeSidePanel({
@@ -560,8 +560,8 @@ export const renderCollapseCode = (codeCollapse, codeCollapseExpandDefault) => {
       header.className = 'collapse-header'
 
       const label = language
-        ? `${language.toUpperCase()} · ${lineCount} lines`
-        : `${lineCount} lines`
+        ? `${language.toUpperCase()} · ${lineCount}줄`
+        : `${lineCount}줄`
 
       header.innerHTML = `<span class="collapse-label">${label}</span><svg class="collapse-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.293 6.293a1 1 0 0 1 1.414 0L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414l-3 3a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 0-1.414z" clip-rule="evenodd"/></svg>`
 
