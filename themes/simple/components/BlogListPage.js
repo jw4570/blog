@@ -1,79 +1,84 @@
-import { AdSlot } from '@/components/GoogleAdsense'
 import { siteConfig } from '@/lib/config'
 import { useGlobal } from '@/lib/global'
 import SmartLink from '@/components/SmartLink'
 import { useRouter } from 'next/router'
-import CONFIG from '../config'
 import { BlogItem } from './BlogItem'
+import JournalIcon from './JournalIcon'
 
-/**
- * 博客列表
- * @param {*} props
- * @returns
- */
-export default function BlogListPage(props) {
-  const { page = 1, posts, postCount } = props
+export default function BlogListPage({ page = 1, posts = [], postCount = 0 }) {
   const router = useRouter()
-  const { locale, NOTION_CONFIG } = useGlobal()
-  const POSTS_PER_PAGE = siteConfig('POSTS_PER_PAGE', null, NOTION_CONFIG)
-  const totalPage = Math.ceil(postCount / POSTS_PER_PAGE)
-  const currentPage = +page
-
-  // 博客列表嵌入广告
-  const SIMPLE_POST_AD_ENABLE = siteConfig(
-    'SIMPLE_POST_AD_ENABLE',
-    false,
-    CONFIG
+  const { NOTION_CONFIG } = useGlobal()
+  const totalPage = Math.ceil(
+    postCount / siteConfig('POSTS_PER_PAGE', 12, NOTION_CONFIG)
   )
-
-  const showPrev = currentPage > 1
-  const showNext = page < totalPage
+  const currentPage = +page
   const pagePrefix = router.asPath
     .split('?')[0]
     .replace(/\/page\/[1-9]\d*/, '')
     .replace(/\/$/, '')
     .replace('.html', '')
-
+  const home =
+    router.pathname === '/' ||
+    router.pathname === '/page/[page]' ||
+    router.pathname === '/[prefix]'
   return (
-    <div className='w-full md:pr-8 mb-12'>
-      <div id='posts-wrapper'>
-        {!posts?.length && (
-          <p className='py-16 text-center text-gray-500'>
-            {locale.COMMON.EMPTY_POSTS || locale.COMMON.NO_RESULTS_FOUND}
-          </p>
-        )}
-        {posts?.map((p, index) => (
-          <div key={p.id}>
-            {SIMPLE_POST_AD_ENABLE && (index + 1) % 3 === 0 && (
-              <AdSlot type='in-article' />
-            )}
-            {SIMPLE_POST_AD_ENABLE && index + 1 === 4 && <AdSlot type='flow' />}
-            <BlogItem post={p} />
-          </div>
+    <section className='journal-post-section' aria-label='글 목록'>
+      <div className='journal-section-heading'>
+        <div>
+          <span className='journal-section-label'>
+            {home ? 'RECENT NOTES' : 'COLLECTION'}
+          </span>
+          <h2>
+            {home ? '최근의 기록' : '모아둔 기록'}
+            <span>{postCount}</span>
+          </h2>
+        </div>
+        <SmartLink href='/archive' className='journal-text-link'>
+          모든 기록 <JournalIcon name='next' size={15} />
+        </SmartLink>
+      </div>
+      {!posts.length && (
+        <div className='journal-empty'>
+          <JournalIcon name='book' size={32} />
+          <h3>아직 기록이 없어요.</h3>
+          <p>새로운 생각이 차곡차곡 쌓일 공간입니다.</p>
+        </div>
+      )}
+      <div id='posts-wrapper' className='journal-post-grid'>
+        {posts.map((post, index) => (
+          <BlogItem
+            key={post.id}
+            post={post}
+            index={index}
+            featured={home && currentPage === 1 && index === 0}
+          />
         ))}
       </div>
-
-      <div className='flex justify-between text-xs mt-1'>
-        <SmartLink
-          href={{
-            pathname:
-              currentPage - 1 === 1
-                ? `${pagePrefix}/`
-                : `${pagePrefix}/page/${currentPage - 1}`,
-            query: router.query.s ? { s: router.query.s } : {}
-          }}
-          className={`${showPrev ? 'text-blue-600 border-b border-blue-400 visible ' : ' invisible bg-gray pointer-events-none '} no-underline pb-1 px-3`}>
-          {locale.PAGINATION.PREV} <i className='fa-solid fa-arrow-left'></i>
-        </SmartLink>
-        <SmartLink
-          href={{
-            pathname: `${pagePrefix}/page/${currentPage + 1}`,
-            query: router.query.s ? { s: router.query.s } : {}
-          }}
-          className={`${showNext ? 'text-blue-600 border-b border-blue-400 visible' : ' invisible bg-gray pointer-events-none '} no-underline pb-1 px-3`}>
-          {locale.PAGINATION.NEXT} <i className='fa-solid fa-arrow-right'></i>
-        </SmartLink>
-      </div>
-    </div>
+      {totalPage > 1 && (
+        <nav className='journal-pagination' aria-label='글 페이지'>
+          <span>
+            {currentPage} / {totalPage}
+          </span>
+          <div>
+            {currentPage > 1 && (
+              <SmartLink
+                href={
+                  currentPage === 2
+                    ? `${pagePrefix}/`
+                    : `${pagePrefix}/page/${currentPage - 1}`
+                }
+              >
+                <JournalIcon name='back' size={16} /> 이전
+              </SmartLink>
+            )}
+            {currentPage < totalPage && (
+              <SmartLink href={`${pagePrefix}/page/${currentPage + 1}`}>
+                다음 <JournalIcon name='next' size={16} />
+              </SmartLink>
+            )}
+          </div>
+        </nav>
+      )}
+    </section>
   )
 }

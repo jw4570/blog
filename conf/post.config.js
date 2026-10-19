@@ -16,7 +16,7 @@ module.exports = {
   POST_SHARE_BAR_ENABLE: process.env.NEXT_PUBLIC_POST_SHARE_BAR || 'true', //文章底部分享条开关
   POSTS_SHARE_SERVICES:
     process.env.NEXT_PUBLIC_POST_SHARE_SERVICES ||
-    'link,wechat,qq,weibo,email,facebook,twitter,telegram,messenger,line,reddit,whatsapp,linkedin,csdn,juejin', // 分享的服務，按顺序显示,逗号隔开
+    'link,email,twitter', // 分享的服務，按顺序显示,逗号隔开
   // 所有支持的分享服务：link(复制链接),wechat(微信),qq,weibo(微博),email(邮件),facebook,twitter,telegram,messenger,line,reddit,whatsapp,linkedin,vkshare,okshare,tumblr,livejournal,mailru,viber,workplace,pocket,instapaper,hatena
 
   POST_TITLE_ICON: process.env.NEXT_PUBLIC_POST_TITLE_ICON || true, // 是否显示标题icon
@@ -35,7 +35,7 @@ module.exports = {
     process.env.NEXT_PUBLIC_ARTICLE_EXPIRATION_DAYS || 90, // 文章过期提醒阈值（天）
   ARTICLE_EXPIRATION_MESSAGE:
     process.env.NEXT_PUBLIC_ARTICLE_EXPIRATION_MESSAGE ||
-    '这篇文章发布于 %%DAYS%% 天前，内容可能已过时，请谨慎参考。', // 过期提示信息，使用 %%DAYS%% 作为天数占位符
+    '작성된 지 %%DAYS%%일 지난 글입니다. 일부 내용은 달라졌을 수 있습니다.', // 过期提示信息，使用 %%DAYS%% 作为天数占位符
   ARTICLE_EXPIRATION_ENABLED:
     process.env.NEXT_PUBLIC_ARTICLE_EXPIRATION_ENABLED || 'false', // 是否启用文章过期提醒
 

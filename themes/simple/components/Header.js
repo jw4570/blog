@@ -1,67 +1,66 @@
-import LazyImage from '@/components/LazyImage'
 import { siteConfig } from '@/lib/config'
-import SmartLink from '@/components/SmartLink'
-import CONFIG from '../config'
-import SocialButton from './SocialButton'
+import { useRouter } from 'next/router'
+import JournalIcon from './JournalIcon'
 
-/**
- * 网站顶部
- * @returns
- */
-export default function Header(props) {
-  const { siteInfo } = props
-  const ANALYTICS_BUSUANZI_ENABLE = siteConfig('ANALYTICS_BUSUANZI_ENABLE')
-
+export default function Header({ post, postCount, posts }) {
+  const { pathname } = useRouter()
+  if (post) return null
+  const isHome =
+    pathname === '/' || pathname === '/page/[page]' || pathname === '/[prefix]'
+  const title = pathname.includes('search')
+    ? '어떤 기록을 찾고 있나요?'
+    : pathname.includes('archive')
+      ? '차곡차곡 쌓인 기록.'
+      : pathname.includes('category')
+        ? '관심사를 따라, 한 걸음.'
+        : pathname.includes('tag')
+          ? '작은 주제로 연결된 생각.'
+          : '모든 기록'
   return (
-    <header className='text-center justify-between items-center px-6 bg-white h-80 dark:bg-black relative z-10'>
-      <div className='float-none inline-block py-12'>
-        <SmartLink href='/'>
-          {/* 可使用一张单图作为logo */}
-          <div className='flex space-x-6 justify-center'>
-            <div className='hover:rotate-45 hover:scale-125 transform duration-200 cursor-pointer justify-center items-center flex'>
-              <LazyImage
-                priority={true}
-                src={siteInfo?.icon}
-                className='rounded-full'
-                width={100}
-                height={100}
-                alt={siteConfig('AUTHOR')}
-              />
-            </div>
-
-            <div className='flex-col flex justify-center'>
-              <div className='text-2xl font-serif dark:text-white py-2 hover:scale-105 transform duration-200'>
-                {siteConfig('AUTHOR')}
-              </div>
-              <div
-                className='font-light dark:text-white py-2 hover:scale-105 transform duration-200 text-center'
-                dangerouslySetInnerHTML={{
-                  __html: siteConfig('SIMPLE_LOGO_DESCRIPTION', null, CONFIG)
-                }}
-              />
-            </div>
-          </div>
-        </SmartLink>
-
-        {ANALYTICS_BUSUANZI_ENABLE && (
-          <div className='flex justify-center mt-2 text-sm text-gray-500 dark:text-gray-300'>
-            <span className='hidden busuanzi_container_site_pv whitespace-nowrap'>
-              访问量 <span className='busuanzi_value_site_pv' />
-            </span>
-            <span className='hidden busuanzi_container_site_uv whitespace-nowrap'>
-              <span className='mx-1'>·</span>
-              访客数 <span className='busuanzi_value_site_uv' />
-            </span>
-          </div>
-        )}
-
-        <div className='flex justify-center'>
-          <SocialButton />
+    <header className={`journal-hero ${isHome ? '' : 'journal-hero-compact'}`}>
+      <div className='journal-hero-copy'>
+        <div className='journal-eyebrow'>
+          <span className='journal-status-dot' />{' '}
+          {isHome ? '작은 발견을 모으는 공간' : 'JUWON’S JOURNAL'}
         </div>
-        <div className='text-xs mt-4 text-gray-500 dark:text-gray-300'>
-          {siteConfig('DESCRIPTION')}
-        </div>
+        <h1>
+          {isHome ? (
+            <>
+              배우고, 만들고.
+              <br />
+              <span>그 과정을 기록합니다.</span>
+            </>
+          ) : (
+            title
+          )}
+        </h1>
+        <p>
+          {isHome
+            ? '코드 한 줄부터 일상의 작은 생각까지.\n어제보다 조금 더 나아지는 과정을 남깁니다.'
+            : '언제든 다시 꺼내 읽을 수 있도록.'}
+        </p>
       </div>
+      {isHome && (
+        <aside className='journal-profile' aria-label='블로그 소개'>
+          <div className='journal-profile-top'>
+            <span className='journal-app-icon'>
+              <JournalIcon name='book' size={28} />
+            </span>
+            <span className='journal-profile-label'>나의 기록장</span>
+            <span className='journal-profile-dots'>···</span>
+          </div>
+          <div className='journal-profile-author'>
+            {siteConfig('AUTHOR')}의 노트
+          </div>
+          <p>{siteConfig('BIO')}</p>
+          <div className='journal-profile-bottom'>
+            <span>
+              <strong>{postCount ?? posts?.length ?? 0}</strong>개의 공개된 기록
+            </span>
+            <span className='journal-profile-avatar'>J</span>
+          </div>
+        </aside>
+      )}
     </header>
   )
 }
