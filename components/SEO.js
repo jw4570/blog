@@ -121,7 +121,7 @@ const SEO = props => {
   const TWITTER_SITE = siteConfig('TWITTER_SITE', '', NOTION_CONFIG)
   const TWITTER_CREATOR = siteConfig('TWITTER_CREATOR', '', NOTION_CONFIG)
 
-  const AUTHOR = siteConfig('AUTHOR')
+  const AUTHOR = post?.authors?.map(author => author.name).join(', ') || siteConfig('AUTHOR')
   return (
     <Head>
       <link rel='icon' href={favicon} />

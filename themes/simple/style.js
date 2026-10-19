@@ -511,6 +511,28 @@ const Style = () => (
       background: var(--j-soft);
       color: var(--j-blue);
       font-weight: 600;
+      aspect-ratio: 1 / 1;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    #theme-simple .journal-author-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    #theme-simple .journal-author-avatar-small {
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+    }
+    #theme-simple .journal-author-avatars,
+    #theme-simple .journal-post-author {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      vertical-align: middle;
     }
     #theme-simple .journal-article-meta > span:last-child {
       display: flex;

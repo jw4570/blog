@@ -1,7 +1,8 @@
 import SmartLink from '@/components/SmartLink'
-import { siteConfig } from '@/lib/config'
 import JournalIcon from './JournalIcon'
+import AuthorAvatar, { getPostAuthors } from './AuthorAvatar'
 export default function ArticleInfo({ post }) {
+  const authors = getPostAuthors(post)
   return (
     <header className='journal-article-header'>
       <SmartLink href='/' className='journal-back-link'>
@@ -15,9 +16,13 @@ export default function ArticleInfo({ post }) {
         )}
       </h1>
       <div className='journal-article-meta'>
-        <span className='journal-author-avatar'>J</span>
+        <span className='journal-author-avatars'>
+          {authors.map(author => (
+            <AuthorAvatar key={author.name} author={author} />
+          ))}
+        </span>
         <span>
-          <strong>{siteConfig('AUTHOR')}</strong>
+          <strong>{authors.map(author => author.name).join(', ')}</strong>
           <span>
             {post.publishDay}
             {post.lastEditedDay !== post.publishDay

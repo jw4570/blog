@@ -10,6 +10,7 @@ module.exports = {
 
   // 自定义配置notion数据库字段名
   NOTION_DEFAULT_POST_TYPE: process.env.NOTION_DEFAULT_POST_TYPE || 'Post',
+  NOTION_AUTHORS_PAGE_ID: process.env.NOTION_AUTHORS_PAGE_ID || '3fe7633d9bef80759362c8656cc940c8',
   NOTION_PROPERTY_NAME: {
     password: process.env.NEXT_PUBLIC_NOTION_PROPERTY_PASSWORD || 'password',
     type: process.env.NEXT_PUBLIC_NOTION_PROPERTY_TYPE || 'type', // 文章类型，
@@ -25,6 +26,7 @@ module.exports = {
     type_event:
       process.env.NEXT_PUBLIC_NOTION_PROPERTY_TYPE_EVENT || 'Event', // 社区活动
     title: process.env.NEXT_PUBLIC_NOTION_PROPERTY_TITLE || 'title', // 文章标题
+    author: process.env.NEXT_PUBLIC_NOTION_PROPERTY_AUTHOR || 'Author',
     status: process.env.NEXT_PUBLIC_NOTION_PROPERTY_STATUS || 'status',
     status_publish:
       process.env.NEXT_PUBLIC_NOTION_PROPERTY_STATUS_PUBLISH || 'Public', // 当status状态值与此相同时为发布，可以为中文

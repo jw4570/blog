@@ -1,8 +1,9 @@
 import SmartLink from '@/components/SmartLink'
-import { siteConfig } from '@/lib/config'
 import JournalIcon from './JournalIcon'
+import AuthorAvatar, { getPostAuthors } from './AuthorAvatar'
 
 export const BlogItem = ({ post }) => {
+  const authors = getPostAuthors(post)
   const title =
     post.title?.replace(/^[\p{Extended_Pictographic}\uFE0F\u200D]+\s*/u, '') ||
     '제목 없는 글'
@@ -40,7 +41,10 @@ export const BlogItem = ({ post }) => {
         {post.summary && <p className='journal-post-summary'>{post.summary}</p>}
         <div className='journal-post-bottom'>
           <span className='journal-post-meta'>
-            {siteConfig('AUTHOR')}
+            <span className='journal-post-author'>
+              <AuthorAvatar author={authors[0]} small />
+              {authors.map(author => author.name).join(', ')}
+            </span>
             {post.tags?.length > 0 && (
               <span className='journal-post-tags'>
                 {post.tags.map(tag => `#${tag}`).join('  ')}
