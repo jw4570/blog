@@ -153,7 +153,7 @@ describe('PrismMac code side panel', () => {
     renderCollapseCode(true, false)
 
     const sidePanelButton = document.querySelector('.collapse-side-panel-button')
-    expect(sidePanelButton).toHaveTextContent('在侧栏查看')
+    expect(sidePanelButton).toHaveTextContent('코드 크게 보기')
 
     fireEvent.click(sidePanelButton)
 
