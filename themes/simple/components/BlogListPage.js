@@ -25,16 +25,13 @@ export default function BlogListPage({ page = 1, posts = [], postCount = 0 }) {
     <section className='journal-post-section' aria-label='글 목록'>
       <div className='journal-section-heading'>
         <div>
-          <span className='journal-section-label'>
-            {home ? 'RECENT NOTES' : 'COLLECTION'}
-          </span>
           <h2>
-            {home ? '최근의 기록' : '모아둔 기록'}
+            {home ? '최근 글' : '글 목록'}
             <span>{postCount}</span>
           </h2>
         </div>
         <SmartLink href='/archive' className='journal-text-link'>
-          모든 기록 <JournalIcon name='next' size={15} />
+          모든 글 <JournalIcon name='next' size={15} />
         </SmartLink>
       </div>
       {!posts.length && (
@@ -45,13 +42,8 @@ export default function BlogListPage({ page = 1, posts = [], postCount = 0 }) {
         </div>
       )}
       <div id='posts-wrapper' className='journal-post-grid'>
-        {posts.map((post, index) => (
-          <BlogItem
-            key={post.id}
-            post={post}
-            index={index}
-            featured={home && currentPage === 1 && index === 0}
-          />
+        {posts.map(post => (
+          <BlogItem key={post.id} post={post} />
         ))}
       </div>
       {totalPage > 1 && (
