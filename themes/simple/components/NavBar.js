@@ -31,9 +31,6 @@ export default function NavBar() {
     <nav className='journal-nav' aria-label='주 메뉴'>
       <div className='journal-nav-inner'>
         <SmartLink href='/' className='journal-brand' aria-label='블로그 홈'>
-          <span className='journal-brand-icon'>
-            j<span>·</span>
-          </span>
           <span>
             {siteConfig('AUTHOR')}
             <span className='journal-brand-suffix'>.log</span>
