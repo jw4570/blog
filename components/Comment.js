@@ -103,7 +103,7 @@ const Comment = ({ frontMatter, className }) => {
       {/* 延迟加载评论区 */}
       {!shouldLoad && (
         <div className='text-center'>
-          Loading...
+          댓글을 불러오는 중입니다…
           <i className='fas fa-spinner animate-spin text-3xl ' />
         </div>
       )}

@@ -1,333 +1,362 @@
-import { buildCommentTree, countReplies } from '@/lib/plugins/notionComments'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-const ROOT_PAGE_SIZE = 10
-const REPLY_PAGE_SIZE = 2
+const formatTime = value =>
+  new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Seoul'
+  }).format(new Date(value))
 
-const formatTime = value => {
-  const date = new Date(value)
-  const diff = Date.now() - date.getTime()
-  if (Number.isNaN(diff)) return ''
-  if (diff < 60 * 1000) return '刚刚'
-  if (diff < 60 * 60 * 1000) return `${Math.floor(diff / 60000)} 分钟前`
-  if (diff < 24 * 60 * 60 * 1000) {
-    return `${Math.floor(diff / 3600000)} 小时前`
-  }
-  return date.toLocaleDateString()
-}
-
-const getInitial = name => (name || '?').trim().slice(0, 1).toUpperCase()
-
-const NotionComments = ({ postId }) => {
+export default function NotionComments({ postId }) {
   const [comments, setComments] = useState([])
+  const [nextOffset, setNextOffset] = useState(null)
   const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [nickname, setNickname] = useState('')
   const [website, setWebsite] = useState('')
-  const [replyTo, setReplyTo] = useState('')
-  const [expandedReplies, setExpandedReplies] = useState({})
-  const [visibleReplyCounts, setVisibleReplyCounts] = useState({})
-  const [visibleRootCount, setVisibleRootCount] = useState(ROOT_PAGE_SIZE)
+  const [loading, setLoading] = useState(true)
+  const [ready, setReady] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
-  const contentRef = useRef(null)
+  const submission = useRef(null)
+  const busy = useRef(false)
+  const activePost = useRef(postId)
+  activePost.current = postId
 
-  const loadComments = useCallback(async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const response = await fetch(
-        `/api/notion-comments?postId=${encodeURIComponent(postId)}`
-      )
-      if (!response.ok) throw new Error('Failed to load comments')
-      setComments(await response.json())
-    } catch (error) {
-      setError('评论加载失败，请重试')
-    } finally {
-      setLoading(false)
-    }
-  }, [postId])
+  const loadComments = useCallback(
+    async (offset = 0, signal) => {
+      setLoading(true)
+      setError('')
+      try {
+        const response = await fetch(
+          `/api/notion-comments?postId=${encodeURIComponent(postId)}&offset=${offset}`,
+          { signal, cache: 'no-store' }
+        )
+        const result = await response.json()
+        if (!response.ok)
+          throw new Error(result.error || '댓글을 불러오지 못했습니다.')
+        if (activePost.current !== postId || signal?.aborted) return
+        setComments(current =>
+          offset ? [...current, ...result.comments] : result.comments
+        )
+        setNextOffset(result.nextOffset)
+        setReady(true)
+      } catch (err) {
+        if (err.name !== 'AbortError' && activePost.current === postId)
+          setError(err.message || '댓글을 불러오지 못했습니다.')
+      } finally {
+        if (!signal?.aborted && activePost.current === postId) setLoading(false)
+      }
+    },
+    [postId]
+  )
 
   useEffect(() => {
-    if (!postId) return
-    void loadComments()
-  }, [loadComments, postId])
+    const controller = new AbortController()
+    setComments([])
+    setReady(false)
+    setNextOffset(null)
+    setContent('')
+    setNotice('')
+    submission.current = null
+    void loadComments(0, controller.signal)
+    return () => controller.abort()
+  }, [loadComments])
 
-  const commentTree = useMemo(() => buildCommentTree(comments), [comments])
-  const visibleRoots = commentTree.slice(0, visibleRootCount)
-  const replyTarget = comments.find(comment => comment.id === replyTo)
-
-  const submitComment = async event => {
+  async function submitComment(event) {
     event.preventDefault()
-    if (!content.trim() || !author.trim() || submitting) return
-
+    const text = content.trim()
+    if (!text || !ready || busy.current) return
+    busy.current = true
     setSubmitting(true)
     setError('')
     setNotice('')
+    if (submission.current?.content !== text)
+      submission.current = { content: text, id: crypto.randomUUID() }
     try {
       const response = await fetch('/api/notion-comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           postId,
-          content,
-          author,
-          nickname,
-          parentId: replyTo,
-          website
+          content: text,
+          website,
+          submissionId: submission.current.id
         })
       })
-      if (!response.ok) throw new Error('Failed to submit comment')
       const result = await response.json()
+      if (!response.ok)
+        throw new Error(result.error || '댓글을 등록하지 못했습니다.')
+      if (activePost.current !== postId) return
       setContent('')
-      setReplyTo('')
-      setNotice(
-        result.pending ? '评论已提交，审核通过后显示。' : '评论已发布。'
-      )
-      if (replyTo) {
-        setExpandedReplies(current => ({ ...current, [replyTo]: true }))
-      }
-      await loadComments()
-    } catch (error) {
-      setError('评论提交失败，请稍后重试')
+      submission.current = null
+      setNotice('댓글이 접수되었습니다. 작성자가 승인하면 이곳에 표시됩니다.')
+    } catch (err) {
+      if (activePost.current === postId)
+        setError(err.message || '연결을 확인한 뒤 다시 시도해 주세요.')
     } finally {
+      busy.current = false
       setSubmitting(false)
     }
   }
 
-  const startReply = comment => {
-    setReplyTo(comment.id)
-    setExpandedReplies(current => ({ ...current, [comment.id]: true }))
-    setVisibleReplyCounts(current => ({
-      ...current,
-      [comment.id]: current[comment.id] || REPLY_PAGE_SIZE
-    }))
-    contentRef.current?.focus()
-  }
-
-  const toggleReplies = commentId => {
-    setExpandedReplies(current => ({
-      ...current,
-      [commentId]: !current[commentId]
-    }))
-    setVisibleReplyCounts(current => ({
-      ...current,
-      [commentId]: current[commentId] || REPLY_PAGE_SIZE
-    }))
-  }
-
-  const showMoreReplies = commentId => {
-    setVisibleReplyCounts(current => ({
-      ...current,
-      [commentId]: (current[commentId] || REPLY_PAGE_SIZE) + REPLY_PAGE_SIZE
-    }))
-  }
-
-  const renderComment = (comment, level = 0) => {
-    const replies = comment.children || []
-    const hasReplies = replies.length > 0
-    const repliesOpen = expandedReplies[comment.id] || level > 0
-    const replyCount = countReplies(comment)
-    const visibleReplyCount = visibleReplyCounts[comment.id] || REPLY_PAGE_SIZE
-    const visibleReplies =
-      level === 0 ? replies.slice(0, visibleReplyCount) : replies
-
-    return (
-      <article
-        key={comment.id}
-        className={`flex gap-3 border-gray-200 py-4 dark:border-gray-700 ${
-          level === 0 ? 'border-b' : 'border-l pl-3 sm:pl-4'
-        }`}
-      >
-        <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white dark:bg-gray-100 dark:text-gray-900'>
-          {getInitial(comment.author)}
-        </div>
-        <div className='min-w-0 flex-1'>
-          <header className='flex flex-wrap items-center gap-2 text-sm'>
-            <span className='font-medium text-gray-900 dark:text-gray-100'>
-              {comment.author}
-            </span>
-            <time className='text-gray-500 dark:text-gray-400'>
-              {formatTime(comment.createdTime)}
-            </time>
-          </header>
-
-          <p className='mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-gray-800 dark:text-gray-200'>
-            {comment.content}
-          </p>
-
-          <div className='mt-2 flex flex-wrap items-center gap-3 text-sm'>
-            <button
-              type='button'
-              className='text-blue-600 hover:underline dark:text-blue-400'
-              onClick={() => startReply(comment)}
-            >
-              回复
-            </button>
-
-            {hasReplies && level === 0 && (
-              <button
-                type='button'
-                className='text-gray-600 hover:underline dark:text-gray-300'
-                onClick={() => toggleReplies(comment.id)}
-              >
-                {repliesOpen ? '收起回复' : `查看 ${replyCount} 条回复`}
-              </button>
-            )}
-          </div>
-
-          {hasReplies && repliesOpen && (
-            <div className='mt-3 space-y-1'>
-              {visibleReplies.map(child => renderComment(child, level + 1))}
-              {level === 0 && visibleReplyCount < replies.length && (
-                <button
-                  type='button'
-                  className='ml-12 text-sm text-gray-600 hover:underline dark:text-gray-300'
-                  onClick={() => showMoreReplies(comment.id)}
-                >
-                  展开更多回复
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </article>
-    )
-  }
-
   return (
-    <div className='space-y-5'>
-      <section className='rounded-md border border-gray-200 p-4 dark:border-gray-700'>
-        <div className='mb-3 flex items-center justify-between gap-3'>
-          <h3 className='text-base font-semibold text-gray-900 dark:text-gray-100'>
-            评论
-          </h3>
-          <span className='text-sm text-gray-500 dark:text-gray-400'>
-            {comments.length} 条
-          </span>
-        </div>
-
-        {replyTarget && (
-          <div className='mb-3 flex items-center justify-between gap-3 rounded-md bg-gray-100 px-3 py-2 text-sm dark:bg-gray-800'>
-            <span className='truncate'>正在回复 @{replyTarget.author}</span>
-            <button
-              type='button'
-              className='shrink-0 text-gray-600 hover:underline dark:text-gray-300'
-              onClick={() => setReplyTo('')}
-            >
-              取消
-            </button>
-          </div>
-        )}
-
-        <form
-          className='space-y-3'
-          onSubmit={event => {
-            void submitComment(event)
-          }}
+    <section className='nc-wrap' aria-labelledby={`comments-heading-${postId}`}>
+      <div className='nc-heading'>
+        <h2 id={`comments-heading-${postId}`}>댓글</h2>
+        <button
+          type='button'
+          onClick={() => void loadComments()}
+          disabled={loading || submitting}
+          aria-label='댓글 새로고침'
         >
-          <textarea
-            ref={contentRef}
-            className='w-full rounded-md border border-gray-300 bg-transparent p-3 text-sm outline-none focus:border-blue-500 dark:border-gray-600'
-            maxLength={2000}
-            onChange={event => setContent(event.target.value)}
-            placeholder={replyTarget ? '写下回复...' : '写下你的评论...'}
-            required
-            rows={4}
-            value={content}
-          />
+          새로고침
+        </button>
+      </div>
+      <p className='nc-intro'>로그인 없이 익명으로 이야기 나눌 수 있어요.</p>
+      <form onSubmit={submitComment} className='nc-form'>
+        <label className='nc-label' htmlFor={`comment-content-${postId}`}>
+          댓글 남기기
+        </label>
+        <textarea
+          id={`comment-content-${postId}`}
+          value={content}
+          onChange={event => setContent(event.target.value)}
+          placeholder='글을 읽고 떠오른 생각을 남겨주세요.'
+          maxLength={2000}
+          required
+          rows={4}
+          disabled={submitting}
+          aria-describedby={`comment-guide-${postId}`}
+        />
+        <label className='nc-trap' aria-hidden='true'>
+          웹사이트
           <input
-            aria-hidden='true'
-            autoComplete='off'
-            className='hidden'
+            name='website'
+            value={website}
             onChange={event => setWebsite(event.target.value)}
             tabIndex={-1}
-            value={website}
+            autoComplete='off'
           />
-          <div className='grid gap-2 sm:grid-cols-[1fr_1fr_auto]'>
-            <input
-              className='min-w-0 rounded-md border border-gray-300 bg-transparent p-2 text-sm outline-none focus:border-blue-500 dark:border-gray-600'
-              maxLength={40}
-              onChange={event => setNickname(event.target.value)}
-              placeholder='昵称'
-              value={nickname}
-            />
-            <input
-              className='min-w-0 rounded-md border border-gray-300 bg-transparent p-2 text-sm outline-none focus:border-blue-500 dark:border-gray-600'
-              maxLength={254}
-              onChange={event => setAuthor(event.target.value)}
-              placeholder='邮箱，不会公开'
-              required
-              type='email'
-              value={author}
-            />
-            <button
-              type='submit'
-              className='rounded-md bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-60'
-              disabled={submitting}
-            >
-              {submitting ? '提交中...' : replyTarget ? '回复' : '评论'}
-            </button>
-          </div>
-        </form>
-      </section>
-
-      {notice && (
-        <div className='rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-200'>
-          {notice}
-        </div>
-      )}
-
-      {error && (
-        <div className='flex items-center justify-between gap-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200'>
-          <span>{error}</span>
+        </label>
+        <div className='nc-form-bottom'>
+          <span>{content.length.toLocaleString('ko-KR')} / 2,000</span>
           <button
-            type='button'
-            className='underline'
-            onClick={() => {
-              void loadComments()
-            }}
+            type='submit'
+            disabled={submitting || !ready || !content.trim()}
           >
-            重试
+            {submitting ? '등록 중…' : '댓글 등록'}
           </button>
         </div>
+      </form>
+      <p className='nc-guide' id={`comment-guide-${postId}`}>
+        댓글은 승인 후 공개됩니다. 같은 브라우저에서는 이 글의 익명 번호가
+        유지됩니다.
+      </p>
+      {notice && (
+        <p className='nc-notice' role='status'>
+          {notice}
+        </p>
       )}
-
-      <section>
-        {loading ? (
-          <div className='space-y-3'>
-            {[0, 1, 2].map(item => (
-              <div
-                key={item}
-                className='h-20 animate-pulse rounded-md bg-gray-100 dark:bg-gray-800'
-              />
-            ))}
-          </div>
-        ) : visibleRoots.length ? (
-          <>
-            <div>{visibleRoots.map(comment => renderComment(comment))}</div>
-            {visibleRootCount < commentTree.length && (
-              <button
-                type='button'
-                className='mt-4 w-full rounded-md border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
-                onClick={() =>
-                  setVisibleRootCount(count => count + ROOT_PAGE_SIZE)
-                }
-              >
-                加载更多评论
-              </button>
-            )}
-          </>
-        ) : (
-          <p className='rounded-md border border-dashed border-gray-300 py-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400'>
-            还没有评论，来写第一条吧。
+      {error && (
+        <p className='nc-error' role='alert'>
+          {error}
+        </p>
+      )}
+      <div className='nc-list' aria-busy={loading}>
+        {comments.map(comment => (
+          <article className='nc-comment' key={comment.id}>
+            <div className='nc-comment-meta'>
+              <strong>{comment.author}</strong>
+              <time dateTime={comment.createdTime}>
+                {formatTime(comment.createdTime)}
+              </time>
+            </div>
+            <p>{comment.content}</p>
+          </article>
+        ))}
+        {!loading && !comments.length && !error && (
+          <p className='nc-empty'>
+            아직 공개된 댓글이 없습니다. 첫 이야기를 남겨보세요.
           </p>
         )}
-      </section>
-    </div>
+        {loading && (
+          <p className='nc-empty' role='status'>
+            댓글을 불러오는 중입니다…
+          </p>
+        )}
+        {nextOffset !== null && (
+          <button
+            className='nc-more'
+            disabled={loading}
+            onClick={() => void loadComments(nextOffset)}
+          >
+            댓글 더 보기
+          </button>
+        )}
+      </div>
+      <style jsx>{`
+        .nc-wrap {
+          margin-top: 48px;
+          padding-top: 32px;
+          border-top: 1px solid var(--r-line, #e7e9ed);
+          color: var(--r-text, #30343b);
+          font: inherit;
+        }
+        .nc-heading {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+        .nc-heading h2 {
+          margin: 0;
+          font-size: 22px;
+          font-weight: 700;
+          letter-spacing: -0.025em;
+          color: var(--r-heading, #171b22);
+        }
+        .nc-heading button {
+          background: none;
+          border: 0;
+          font: inherit;
+          font-size: 13px;
+          color: var(--r-muted, #707782);
+          cursor: pointer;
+        }
+        .nc-intro {
+          font-size: 15px;
+          color: var(--r-muted, #707782);
+          margin: 8px 0 24px;
+          line-height: 1.7;
+        }
+        .nc-form {
+          border: 1px solid var(--r-line, #e7e9ed);
+          border-radius: 12px;
+          padding: 16px;
+          background: var(--r-soft, #f6f7f9);
+        }
+        .nc-label {
+          display: block;
+          margin-bottom: 10px;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        textarea {
+          width: 100%;
+          display: block;
+          min-height: 120px;
+          resize: vertical;
+          border: 0;
+          background: transparent;
+          color: inherit;
+          padding: 0;
+          font: inherit;
+          font-size: 16px;
+          line-height: 1.8;
+          outline-offset: 4px;
+        }
+        textarea::placeholder {
+          color: var(--r-muted, #707782);
+        }
+        .nc-form-bottom {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+          margin-top: 14px;
+          font-size: 12px;
+          color: var(--r-muted, #707782);
+        }
+        .nc-form-bottom button {
+          border: 0;
+          border-radius: 8px;
+          background: var(--r-link, #2863bd);
+          color: var(--r-soft, #fff);
+          padding: 10px 16px;
+          font: inherit;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+        button:disabled {
+          opacity: 0.5;
+          cursor: default;
+        }
+        .nc-guide {
+          margin: 12px 0 24px;
+          font-size: 13px;
+          line-height: 1.7;
+          color: var(--r-muted, #707782);
+        }
+        .nc-trap {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+        }
+        .nc-notice {
+          padding: 14px 16px;
+          background: var(--r-soft, #f6f7f9);
+          border-radius: 8px;
+          color: var(--r-link, #2863bd);
+          font-size: 14px;
+          line-height: 1.7;
+        }
+        .nc-error {
+          color: #b44c4c;
+          font-size: 14px;
+          line-height: 1.7;
+        }
+        .nc-comment {
+          padding: 24px 0;
+          border-bottom: 1px solid var(--r-line, #e7e9ed);
+        }
+        .nc-comment-meta {
+          display: flex;
+          gap: 14px;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .nc-comment-meta strong {
+          font-size: 15px;
+          font-weight: 650;
+        }
+        time {
+          font-size: 12px;
+          color: var(--r-muted, #707782);
+        }
+        .nc-comment p {
+          margin: 10px 0 0;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+          font-size: 16px;
+          line-height: 1.85;
+        }
+        .nc-empty {
+          padding: 20px 0;
+          color: var(--r-muted, #707782);
+          font-size: 14px;
+          line-height: 1.7;
+        }
+        .nc-more {
+          display: block;
+          margin: 24px auto 0;
+          padding: 10px 18px;
+          border: 1px solid var(--r-line, #e7e9ed);
+          border-radius: 8px;
+          background: transparent;
+          color: inherit;
+          font: inherit;
+          font-size: 14px;
+          cursor: pointer;
+        }
+      `}</style>
+    </section>
   )
 }
-
-export default NotionComments

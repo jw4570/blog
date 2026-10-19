@@ -68,4 +68,24 @@ Vercel 프로젝트는 `jw4570/blog`이며 GitHub 저장소의 `main` 브랜치�
 4. `.env.blog.example`의 환경 변수를 Vercel에 등록하고 `ENABLE_CACHE=true`로 설정합니다. `NEXT_PUBLIC_LINK`는 로컬 주소를 복사하지 마세요. 미설정 시 Vercel의 프로덕션 도메인을 자동 사용합니다. 개인 도메인을 추가하면 `NEXT_PUBLIC_LINK`를 해당 주소로 설정하세요.
 5. 배포 후 노션에서 `Public`인 글의 목록·상세와 검색을 확인합니다.
 
-이 프로젝트는 노션 공개 페이지를 읽는 NotionNext 방식을 사용하므로 별도 노션 API 키가 필요하지 않습니다. 로컬 `.env.local`은 업로드하지 마세요.
+글을 읽을 때는 노션 공개 페이지를 사용하므로 별도 API 키가 필요하지 않습니다. 아래 댓글 저장 기능은 서버 전용 API 키가 필요합니다. 로컬 `.env.local`은 업로드하지 마세요.
+
+## 익명 댓글 관리
+
+글 하단에서 로그인·이메일 없이 댓글을 작성할 수 있습니다. 댓글은 비공개 `BLOG_COMMENTS` DB에 `Pending`으로 저장되고, 관리자가 `Public`으로 바꾸면 블로그에 표시됩니다. `Hidden`으로 바꾸면 숨겨집니다. 목록의 새로고침 버튼으로 확인하며 서버 캐시는 10초입니다.
+
+필수 속성은 `content`(제목), `post`(BLOG 관계형), `status`(선택: Pending/Public/Hidden), `anonymousNumber`(숫자), `createdAt`(날짜)입니다. 연결 과정에서 추가한 `anonymousKey`, `rateKey`, `submissionId`, `sequence`는 익명 구분·작성 제한·중복 방지에 사용하므로 유지하세요. 댓글 DB는 웹에 게시하지 않고, Integration에만 콘텐츠 읽기·추가·수정 권한을 부여합니다.
+
+서버 환경 변수:
+
+```dotenv
+NOTION_COMMENTS_TOKEN=서버_전용_노션_연결_토큰
+NOTION_COMMENTS_SECRET=충분히_긴_임의의_서버_비밀키
+NOTION_COMMENTS_DATABASE_ID=3fe7633d9bef80c398cbedf7b5ef7483
+NEXT_PUBLIC_COMMENT_NOTION_ENABLE=true
+NEXT_PUBLIC_COMMENT_HIDE_SINGLE_TAB=true
+```
+
+같은 브라우저의 서명된 HttpOnly 쿠키로 글마다 `익명1`, `익명2` 번호를 유지합니다. 브라우저·기기를 바꾸거나 쿠키를 삭제하면 다른 방문자로 구분됩니다. 번호는 공개 여부와 관계없이 첫 댓글 순서로 정해져 숨긴 방문자의 번호는 건너뛸 수 있습니다. 행을 삭제하면 번호가 재정렬될 수 있으므로 관리할 때는 `Hidden`을 사용하세요. `anonymousNumber`는 노션 관리용 값이고, 웹은 자동 `sequence`를 기준으로 번호를 계산해 동시 등록 시에도 같은 번호를 서로 다른 방문자에게 표시하지 않습니다.
+
+댓글은 2,000자까지이며 IP·브라우저 기준 분당 3개로 제한합니다. 원본 IP나 이메일은 DB에 저장하지 않습니다. API는 공개된 비밀번호 없는 BLOG 글만 허용하고, 내부 식별 속성은 웹 응답에서 제외합니다. 테스트 댓글은 검증 후 보관 처리했습니다.
