@@ -24,8 +24,8 @@ module.exports = {
       process.env.NEXT_PUBLIC_NOTION_PROPERTY_TYPE_MEMBER || 'Member', // 社区成员资料
     type_event:
       process.env.NEXT_PUBLIC_NOTION_PROPERTY_TYPE_EVENT || 'Event', // 社区活动
-    title: process.env.NEXT_PUBLIC_NOTION_PROPERTY_TITLE || '이름', // 文章标题
-    status: process.env.NEXT_PUBLIC_NOTION_PROPERTY_STATUS || '발행 상태',
+    title: process.env.NEXT_PUBLIC_NOTION_PROPERTY_TITLE || 'title', // 文章标题
+    status: process.env.NEXT_PUBLIC_NOTION_PROPERTY_STATUS || 'status',
     status_publish:
       process.env.NEXT_PUBLIC_NOTION_PROPERTY_STATUS_PUBLISH || 'Public', // 当status状态值与此相同时为发布，可以为中文
     status_invisible:

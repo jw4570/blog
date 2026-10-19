@@ -33,10 +33,10 @@ npm exec --yes --package=node@22 --package=yarn@1.22.22 -- yarn dev
 
 | 현재 데이터베이스 속성 | 블로그 동작 |
 | --- | --- |
-| `이름` | 글 제목 |
-| `발행 상태` = `Public` | 글 목록과 글 상세 표시 |
-| `발행 상태` = `Unlisted` | 목록에서 숨김, 직접 주소로 접근 가능 |
-| `발행 상태` = `Private` 또는 비어 있음 | 블로그에 표시하지 않음 |
+| `title` | 글 제목 |
+| `status` = `Public` | 글 목록과 글 상세 표시 |
+| `status` = `Unlisted` | 목록에서 숨김, 직접 주소로 접근 가능 |
+| `status` = `Private` 또는 비어 있음 | 블로그에 표시하지 않음 |
 | 생성 일시 / 최종 편집 일시 | 원본 페이지의 작성·수정 시각 사용 |
 
 현재 DB에는 `type` 속성이 없으므로 각 항목을 `Post`로 취급하도록 맞췄습니다. 나중에 `type` 선택 속성을 추가하면 `Post`, `Page`, `Menu` 같은 NotionNext 타입을 지정할 수 있습니다. `slug`(텍스트), `summary`(텍스트), `category`(선택), `tags`(다중 선택), `date`(날짜) 속성은 필요할 때 추가하세요. `slug`가 없으면 페이지 ID로 글 주소를 만듭니다.

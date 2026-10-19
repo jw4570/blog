@@ -43,3 +43,12 @@ describe('personal blog database mapping', () => {
       .toMatchObject({ type: 'Page' })
   })
 })
+
+
+describe('Notion column rename compatibility', () => {
+  const legacySchema = { title: { name: '이름', type: 'title' }, state: { name: '발행 상태', type: 'status' } }
+  it.each([['Public', 'Published'], ['Private', 'Private'], ['Unlisted', 'Invisible']])('preserves %s visibility while Korean columns are renamed', async (status, expected) => {
+    const post = await getPageProperties('legacy-page', { properties: { title: [['기존 글']], state: [[status]] }, created_time: 1792401643450, last_edited_time: 1792401643450 }, legacySchema, null, [])
+    expect(post).toMatchObject({ title: '기존 글', status: expected })
+  })
+})

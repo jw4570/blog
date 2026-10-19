@@ -21,8 +21,9 @@ try {
   const collection = collections.find(item => item?.schema)
   if (!collection) throw new Error('공개 데이터베이스를 읽을 수 없습니다. 노션의 웹 게시 상태와 페이지 ID를 확인해 주세요.')
   const columns = Object.values(collection.schema)
-  const statusName = process.env.NEXT_PUBLIC_NOTION_PROPERTY_STATUS || '발행 상태'
-  const status = columns.find(column => column.name === statusName)
+  const statusName = process.env.NEXT_PUBLIC_NOTION_PROPERTY_STATUS || 'status'
+  const status = columns.find(column => column.name === statusName) ||
+    (statusName === 'status' ? columns.find(column => column.name === '발행 상태') : null)
   if (!status || !['select', 'status'].includes(status.type)) throw new Error(`선택 또는 상태 속성 '${statusName}'가 필요합니다.`)
   const publicStatus = process.env.NEXT_PUBLIC_NOTION_PROPERTY_STATUS_PUBLISH || 'Public'
   if (!status.options?.some(option => option.value === publicStatus)) throw new Error(`발행 상태에 '${publicStatus}' 옵션이 필요합니다.`)
