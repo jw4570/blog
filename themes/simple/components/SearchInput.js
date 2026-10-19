@@ -12,7 +12,7 @@ export default function SearchInput({ keyword, cRef }) {
       onSubmit={event => {
         event.preventDefault()
         const value = input.current.value.trim()
-        if (value) router.push(`/search/${encodeURIComponent(value)}`)
+        if (value) router.push({ pathname: '/search', query: { s: value } })
       }}
     >
       <JournalIcon name='search' size={22} />
@@ -22,7 +22,7 @@ export default function SearchInput({ keyword, cRef }) {
         defaultValue={keyword || ''}
         type='search'
         aria-label='글 검색'
-        placeholder='제목이나 내용으로 기록 찾기'
+        placeholder='제목이나 태그로 기록 찾기'
       />
       <button type='submit'>검색</button>
     </form>

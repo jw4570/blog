@@ -25,7 +25,7 @@ export default function NavBar() {
   function search(event) {
     event.preventDefault()
     const value = input.current?.value.trim()
-    if (value) router.push(`/search/${encodeURIComponent(value)}`)
+    if (value) router.push({ pathname: '/search', query: { s: value } })
   }
   return (
     <nav className='journal-nav' aria-label='주 메뉴'>
