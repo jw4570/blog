@@ -365,7 +365,9 @@ export default function ArticleStyle() {
       }
       #theme-simple .journal-reading .notion-hr {
         margin: 36px 0;
-        border-color: var(--r-line);
+        border: 0;
+        border-top: 1px solid var(--r-line);
+        height: 1px;
       }
       #theme-simple .journal-reading .notion-asset-wrapper {
         margin: 28px 0;
