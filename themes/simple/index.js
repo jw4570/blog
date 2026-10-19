@@ -11,6 +11,7 @@ import ArticleInfo from './components/ArticleInfo'
 import JournalIcon from './components/JournalIcon'
 import CONFIG from './config'
 import { Style } from './style'
+import ArticleStyle from './components/ArticleStyle'
 
 const ArticleLock = dynamic(() => import('./components/ArticleLock'), {
   ssr: false
@@ -25,6 +26,7 @@ const LayoutBase = props => {
     <ThemeGlobalSimple.Provider value={{ searchModal }}>
       <div id='theme-simple' className='journal'>
         <Style />
+        <ArticleStyle />
         <a className='journal-skip-link' href='#main-content'>
           본문으로 건너뛰기
         </a>

@@ -1,5 +1,8 @@
 ﻿import { useEffect } from 'react'
 import Prism from 'prismjs'
+// Keep the blog's Swift and shell examples highlighted without a CDN round trip.
+import 'prismjs/components/prism-swift'
+import 'prismjs/components/prism-bash'
 // 所有语言的prismjs 使用autoloader引入
 // import 'prismjs/plugins/autoloader/prism-autoloader'
 import 'prismjs/plugins/toolbar/prism-toolbar'
