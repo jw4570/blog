@@ -1,6 +1,14 @@
 /* eslint-disable react/no-unknown-property */
 const Style = () => (
   <style jsx global>{`
+    html:has(#theme-simple) {
+      scrollbar-gutter: stable;
+    }
+    @supports not (scrollbar-gutter: stable) {
+      html:has(#theme-simple) {
+        overflow-y: scroll;
+      }
+    }
     #theme-simple {
       --j-bg: #f5f5f7;
       --j-card: #fff;
