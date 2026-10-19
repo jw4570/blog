@@ -60,6 +60,8 @@ npm exec --yes --package=node@22 --package=yarn@1.22.22 -- yarn dev
 
 ## Vercel 배포
 
+Vercel 프로젝트는 `jw4570/blog`이며 GitHub 저장소의 `main` 브랜치와 연결했습니다. 이후 `main`에 push하면 자동 배포됩니다. Node.js 22.x와 `NOTION_PAGE_ID`, `ENABLE_CACHE=true`를 프로덕션·미리보기 환경에 설정합니다.
+
 1. GitHub 저장소: https://github.com/jw4570/blog (`origin`). 공식 NotionNext 원본은 `upstream`으로 보관합니다.
 2. Vercel에서 해당 저장소를 가져오고 Next.js 프로젝트로 설정합니다.
 3. Node.js 버전을 **22.x**, 설치 명령을 `yarn install --frozen-lockfile`, 빌드 명령을 `yarn build`로 지정합니다.
