@@ -19,7 +19,8 @@ jest.mock('@/blog.config', () => ({
   POST_RECOMMEND_COUNT: 6
 }))
 jest.mock('@/lib/cache/cache_manager', () => ({
-  getOrSetDataWithCache: jest.fn()
+  getOrSetDataWithCache: jest.fn(),
+  delCacheData: jest.fn()
 }))
 jest.mock('@/lib/db/notion/getNotionAPI', () => ({
   __esModule: true,
@@ -29,6 +30,7 @@ jest.mock('@/lib/db/notion/getNotionPost', () => ({
   fetchPageFromNotion: jest.fn()
 }))
 jest.mock('@/lib/db/notion/getPostBlocks', () => ({
+  getPageBlockCacheKey: id => `page_block_${id}`,
   fetchNotionPageBlocks: jest.fn(),
   formatNotionBlock: block => block
 }))
