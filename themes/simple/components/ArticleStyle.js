@@ -24,7 +24,7 @@ export default function ArticleStyle() {
         --r-string: #21684d;
         --r-number: #975a16;
         --r-function: #255eb5;
-        background: #f5f5f7;
+        background: var(--j-bg);
       }
       .dark #theme-simple:has(.journal-reading) {
         --r-text: #b9b9be;
@@ -40,7 +40,7 @@ export default function ArticleStyle() {
         --r-string: #a4d5b4;
         --r-number: #e5c18c;
         --r-function: #99c3fa;
-        background: #000;
+        background: var(--j-bg);
       }
       #theme-simple .journal-main.journal-reading {
         width: 100%;
@@ -209,22 +209,19 @@ export default function ArticleStyle() {
         border-bottom: 0;
       }
       #theme-simple .journal-reading .notion-list {
-        margin: 4px 0 20px;
+        margin: 0;
         padding-left: 1.4em;
       }
       #theme-simple .journal-reading .notion-list li {
-        padding: 0 0 0 4px;
-        margin: 6px 0;
+        padding: 3px 0 3px 4px;
+        margin: 0;
         line-height: 1.65;
       }
       #theme-simple .journal-reading .notion-list li::marker {
         color: var(--r-muted);
       }
       #theme-simple .journal-reading .notion-list .notion-list {
-        margin: 8px 0;
-      }
-      #theme-simple .journal-reading .notion-list .notion-text {
-        margin-bottom: 8px !important;
+        margin: 0;
       }
       #theme-simple .journal-reading .notion-quote {
         margin: 24px 0;
@@ -393,10 +390,20 @@ export default function ArticleStyle() {
         border-radius: 0;
       }
       #theme-simple .journal-reading .notion-hr {
-        margin: 36px 0;
+        margin: 8px 0;
         border: 0;
         border-top: 1px solid var(--r-line) !important;
         height: 1px;
+      }
+      /* Notion can render every bullet as a separate list, including in callouts. */
+      #theme-simple .journal-reading .notion .notion-list .notion-text {
+        margin: 0 !important;
+      }
+      #theme-simple .journal-reading .notion .notion-text:has(+ .notion-list) {
+        margin-bottom: 3px !important;
+      }
+      #theme-simple .journal-reading .notion .notion-text:has(+ .notion-hr) {
+        margin-bottom: 0 !important;
       }
       #theme-simple .journal-reading .notion-asset-wrapper {
         margin: 28px 0;
