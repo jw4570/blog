@@ -9,9 +9,7 @@ import '@/styles/notion.css' //  重写部分notion样式
 import useAdjustStyle from '@/hooks/useAdjustStyle'
 import { GlobalContextProvider } from '@/lib/global'
 import { getBaseLayoutByTheme } from '@/themes/theme'
-import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo } from 'react'
-import { getQueryParam } from '../lib/utils'
+import { useCallback } from 'react'
 import ErrorHandler from '@/lib/utils/errorHandler'
 
 // 各种扩展插件 这个要阻塞引入
@@ -42,36 +40,7 @@ const MyApp = ({ Component, pageProps }) => {
   // 一些可能出现 bug 的样式，可以统一放入该钩子进行调整
   useAdjustStyle()
 
-  const route = useRouter()
-  const queryTheme = getQueryParam(route.asPath, 'theme')
-  const notionTheme = pageProps?.NOTION_CONFIG?.THEME
-  const configTheme = BLOG.THEME
-  const theme = useMemo(() => {
-    return queryTheme || notionTheme || configTheme
-  }, [queryTheme, notionTheme, configTheme])
-
-  useEffect(() => {
-    const source = queryTheme
-      ? 'url:theme'
-      : notionTheme
-        ? 'notion:config'
-        : 'blog/env:config'
-    console.log(
-      '[ThemeResolver][runtime-final]',
-      JSON.stringify(
-        {
-          note: 'This is the final theme used for rendering.',
-          configTheme,
-          notionTheme: notionTheme || null,
-          queryTheme: queryTheme || null,
-          finalTheme: theme,
-          source
-        },
-        null,
-        2
-      )
-    )
-  }, [configTheme, notionTheme, queryTheme, theme])
+  const theme = BLOG.THEME
 
   // 整体布局
   const GLayout = useCallback(

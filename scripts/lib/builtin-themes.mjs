@@ -21,20 +21,7 @@ export function getBuiltinThemeIds() {
 
 /** @returns {Record<string, { name?: string, summary?: string }>} */
 export function loadThemeSwitchManifest() {
-  const manifestSrc = fs.readFileSync(
-    path.join(REPO_ROOT, 'conf/themeSwitch.manifest.js'),
-    'utf8'
-  )
-  /** @type {Record<string, { name?: string, summary?: string }>} */
-  const manifest = {}
-  for (const m of manifestSrc.matchAll(/(\w+):\s*\{([^}]+)\}/g)) {
-    const id = m[1]
-    const body = m[2]
-    const nameM = body.match(/name:\s*'([^']+)'/)
-    const sumM = body.match(/summary:\s*'([^']+)'/)
-    manifest[id] = { name: nameM?.[1], summary: sumM?.[1] }
-  }
-  return manifest
+  return { simple: { name: 'Juwon.log', summary: 'Personal blog' } }
 }
 
 /** @returns {{ text: string, link: string }[]} */

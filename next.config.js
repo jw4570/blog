@@ -11,7 +11,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 })
 
 // 扫描项目 /themes下的目录名
-const themes = scanSubdirectories(path.resolve(__dirname, 'themes'))
+const themes = ['simple']
 // 检测用户开启的多语言
 const locales = (function () {
   // 根据BLOG_NOTION_PAGE_ID 检查支持多少种语言数据.
@@ -168,21 +168,6 @@ function pruneTransientNotionDataCache(dataDir) {
  * @param {*} directory
  * @returns
  */
-function scanSubdirectories(directory) {
-  const subdirectories = []
-
-  fs.readdirSync(directory).forEach(file => {
-    const fullPath = path.join(directory, file)
-    const stats = fs.statSync(fullPath)
-    if (stats.isDirectory()) {
-      subdirectories.push(file)
-    }
-
-    // subdirectories.push(file)
-  })
-
-  return subdirectories
-}
 
 /**
  * @type {import('next').NextConfig}
@@ -424,7 +409,7 @@ const nextConfig = {
         '[ThemeResolver][webpack]',
         JSON.stringify({
           note:
-            'Layouts load via dynamic import(@/themes/<name>). Theme folder follows runtime NEXT_PUBLIC_THEME / Notion; no compile-time @theme-components alias.',
+            'The personal blog uses only themes/simple.',
           envTheme: process.env.NEXT_PUBLIC_THEME || null,
           configTheme: BLOG.THEME,
           themeFolderPath: path.resolve(__dirname, 'themes', BLOG.THEME)

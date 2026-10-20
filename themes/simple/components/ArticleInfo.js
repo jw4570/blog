@@ -15,25 +15,32 @@ export default function ArticleInfo({ post }) {
           ''
         )}
       </h1>
-      <div className='journal-article-meta'>
-        <span className='journal-author-avatars'>
-          {authors.map(author => (
-            <AuthorAvatar key={author.name} author={author} />
-          ))}
-        </span>
-        <span>
-          <strong>{authors.map(author => author.name).join(', ')}</strong>
-          <span>
-            {post.publishDay}
-            {post.lastEditedDay !== post.publishDay
-              ? ` · ${post.lastEditedDay} 수정`
-              : ''}
-          </span>
-        </span>
-      </div>
       {post.summary && (
         <p className='journal-article-summary'>{post.summary}</p>
       )}
+      <div className='journal-article-meta'>
+        <div>
+          <span className='journal-detail-label'>작성자</span>
+          <span className='journal-detail-value journal-detail-author'>
+            <span className='journal-author-avatars'>
+              {authors.map(author => <AuthorAvatar key={author.name} author={author} />)}
+            </span>
+            {authors.map(author => author.name).join(', ')}
+          </span>
+        </div>
+        <div>
+          <span className='journal-detail-label'>발행일</span>
+          <span className='journal-detail-value'>{post.publishDay}</span>
+        </div>
+        <div>
+          <span className='journal-detail-label'>{post.tags?.length ? '태그' : '최근 수정'}</span>
+          <span className='journal-detail-value'>
+            {post.tags?.length ? post.tags.map(tag => (
+              <SmartLink key={tag} href={`/tag/${encodeURIComponent(tag)}`}>{tag}</SmartLink>
+            )) : post.lastEditedDay || post.publishDay}
+          </span>
+        </div>
+      </div>
     </header>
   )
 }

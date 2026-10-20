@@ -11,46 +11,49 @@ export default function ArticleStyle() {
       }
       /* A continuous reading surface, with one type scale for Notion blocks. */
       #theme-simple:has(.journal-reading) {
-        --r-text: #30343b;
-        --r-heading: #171b22;
-        --r-muted: #707782;
-        --r-line: #e7e9ed;
-        --r-soft: #f6f7f9;
-        --r-link: #2863bd;
-        --r-code: #334155;
+        --r-text: #55565b;
+        --r-heading: #1d1d1f;
+        --r-muted: #6e6e73;
+        --r-line: rgba(0, 0, 0, 0.09);
+        --r-soft: #e8e8ed;
+        --r-link: #0071e3;
+        --r-code: #3a3a3c;
+        --r-code-bg: #f2f2f7;
         --r-comment: #78828f;
         --r-keyword: #8250a4;
         --r-string: #21684d;
         --r-number: #975a16;
         --r-function: #255eb5;
-        background: #fff;
+        background: #f5f5f7;
       }
       .dark #theme-simple:has(.journal-reading) {
-        --r-text: #cdd1d8;
-        --r-heading: #f0f2f5;
-        --r-muted: #969eaa;
-        --r-line: #30353d;
-        --r-soft: #20242b;
-        --r-link: #8cb7f6;
-        --r-code: #d5dce6;
+        --r-text: #b9b9be;
+        --r-heading: #f5f5f7;
+        --r-muted: #a1a1a6;
+        --r-line: rgba(255, 255, 255, 0.14);
+        --r-soft: #2c2c2e;
+        --r-link: #0a84ff;
+        --r-code: #f2f2f7;
+        --r-code-bg: #1c1c1e;
         --r-comment: #929dab;
         --r-keyword: #ceb0f2;
         --r-string: #a4d5b4;
         --r-number: #e5c18c;
         --r-function: #99c3fa;
-        background: #181b20;
+        background: #000;
       }
       #theme-simple .journal-main.journal-reading {
         width: 100%;
-        max-width: 804px;
-        padding: 44px 32px 80px;
+        max-width: 920px;
+        padding: 72px 24px 80px;
         font-family:
-          'Journal Pretendard',
           -apple-system,
           BlinkMacSystemFont,
+          'SF Pro Display',
+          'Journal Pretendard',
           'Apple SD Gothic Neo',
           sans-serif;
-        letter-spacing: -0.015em;
+        letter-spacing: -0.025em;
       }
       #theme-simple .journal-reading .journal-article {
         padding: 0;
@@ -61,33 +64,57 @@ export default function ArticleStyle() {
         color: var(--r-text);
       }
       #theme-simple .journal-reading .journal-back-link {
-        color: var(--r-muted);
-        margin-bottom: 40px;
+        color: var(--r-link);
+        font-size: 16px;
+        margin-bottom: 35px;
       }
       #theme-simple .journal-reading .journal-article-header h1 {
         color: var(--r-heading);
-        font-size: clamp(30px, 4vw, 42px);
-        line-height: 1.35;
-        font-weight: 750;
-        letter-spacing: -0.035em;
-        margin: 12px 0 26px;
+        font-size: clamp(46px, 7vw, 74px);
+        line-height: 1.05;
+        font-weight: 720;
+        letter-spacing: -0.06em;
+        margin: 13px 0 20px;
         word-break: keep-all;
         overflow-wrap: anywhere;
       }
       #theme-simple .journal-reading .journal-article-category {
         color: var(--r-link);
-        font-size: 14px;
-      }
-      #theme-simple .journal-reading .journal-article-meta {
-        border-color: var(--r-line);
-        padding-bottom: 30px;
-      }
-      #theme-simple .journal-reading .journal-article-meta strong {
-        color: var(--r-text);
+        font-size: 19px;
         font-weight: 600;
       }
-      #theme-simple .journal-reading .journal-article-meta > span:last-child {
+      #theme-simple .journal-reading .journal-article-meta {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: start;
+        gap: 20px;
+        padding: 28px 0;
+        margin-top: 45px;
+        border-top: 1px solid var(--r-line);
+        border-bottom: 1px solid var(--r-line);
+      }
+      #theme-simple .journal-detail-label {
+        display: block;
+        font-size: 12px;
         color: var(--r-muted);
+        margin-bottom: 6px;
+      }
+      #theme-simple .journal-detail-value {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+        color: var(--r-heading);
+        font-size: 16px;
+        font-weight: 600;
+      }
+      #theme-simple .journal-detail-value a:hover {
+        color: var(--r-link);
+      }
+      #theme-simple .journal-detail-author .journal-author-avatar {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
       }
       #theme-simple .journal-reading .journal-author-avatar {
         background: var(--r-soft);
@@ -95,11 +122,13 @@ export default function ArticleStyle() {
       }
       #theme-simple .journal-reading .journal-article-summary {
         color: var(--r-muted);
-        line-height: 1.8;
-        margin: 24px 0 0;
+        font-size: 21px;
+        max-width: 610px;
+        line-height: 1.45;
+        margin: 0;
       }
       #theme-simple .journal-reading #article-wrapper {
-        padding-top: 32px;
+        padding-top: 26px;
       }
       #theme-simple .journal-reading .notion {
         --fg-color: var(--r-text);
@@ -113,10 +142,10 @@ export default function ArticleStyle() {
         --notion-blue_background: #edf3fc;
         --notion-gray_background: var(--r-soft);
         color: var(--r-text);
-        font-size: 18px;
+        font-size: 17px;
         font-weight: 400;
-        line-height: 1.85;
-        letter-spacing: -0.012em;
+        line-height: 1.65;
+        letter-spacing: -0.025em;
         word-break: keep-all;
         overflow-wrap: anywhere;
         -webkit-font-smoothing: antialiased;
@@ -128,7 +157,7 @@ export default function ArticleStyle() {
       }
       #theme-simple .journal-reading .notion-text {
         padding: 0 !important;
-        margin: 0 0 16px !important;
+        margin: 0 0 17px !important;
         line-height: inherit !important;
         word-break: inherit;
       }
@@ -142,23 +171,23 @@ export default function ArticleStyle() {
       }
       #theme-simple .journal-reading .notion-h {
         color: var(--r-heading);
-        font-weight: 720;
-        line-height: 1.45;
-        letter-spacing: -0.025em;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -0.045em;
         padding: 0;
-        margin: 48px 0 18px;
+        margin: 42px 0 12px;
         scroll-margin-top: 100px;
         word-break: keep-all;
       }
       #theme-simple .journal-reading .notion-h1 {
-        font-size: 30px;
+        font-size: 34px;
       }
       #theme-simple .journal-reading .notion-h2 {
-        font-size: 26px;
+        font-size: 27px;
       }
       #theme-simple .journal-reading .notion-h3 {
-        font-size: 22px;
-        margin-top: 36px;
+        font-size: 20px;
+        margin-top: 28px;
       }
       #theme-simple .journal-reading .notion-h4 {
         font-size: 20px;
@@ -186,7 +215,7 @@ export default function ArticleStyle() {
       #theme-simple .journal-reading .notion-list li {
         padding: 0 0 0 4px;
         margin: 6px 0;
-        line-height: 1.85;
+        line-height: 1.65;
       }
       #theme-simple .journal-reading .notion-list li::marker {
         color: var(--r-muted);
@@ -206,14 +235,14 @@ export default function ArticleStyle() {
         background: var(--r-soft) !important;
         color: var(--r-text) !important;
         font-size: 1em;
-        line-height: 1.85;
+        line-height: 1.65;
         word-break: inherit;
       }
       #theme-simple .journal-reading .notion-callout {
         margin: 24px 0;
         padding: 18px 20px;
         border: 1px solid var(--r-line) !important;
-        border-radius: 8px;
+        border-radius: 16px;
         background: var(--r-soft) !important;
         color: var(--r-text) !important;
         align-items: flex-start;
@@ -221,7 +250,7 @@ export default function ArticleStyle() {
       #theme-simple .journal-reading .notion-callout-text,
       #theme-simple .journal-reading .notion-callout .notion-text {
         color: inherit !important;
-        line-height: 1.85 !important;
+        line-height: 1.65 !important;
         margin-bottom: 0 !important;
       }
       /* Section-sized Notion callouts read as article sections, not giant panels. */
@@ -263,8 +292,8 @@ export default function ArticleStyle() {
       #theme-simple .journal-reading .code-toolbar {
         margin: 24px 0 28px;
         border: 1px solid var(--r-line);
-        border-radius: 8px;
-        background: var(--r-soft) !important;
+        border-radius: 16px;
+        background: var(--r-code-bg) !important;
         box-shadow: none;
         backdrop-filter: none;
       }
@@ -276,8 +305,8 @@ export default function ArticleStyle() {
         padding: 48px 24px 24px !important;
         margin: 0 !important;
         border: 0 !important;
-        border-radius: 8px !important;
-        background: var(--r-soft) !important;
+        border-radius: 16px !important;
+        background: var(--r-code-bg) !important;
         color: var(--r-code) !important;
         font-size: 14px !important;
         line-height: 1.75 !important;
@@ -340,9 +369,9 @@ export default function ArticleStyle() {
         color: var(--r-code);
       }
       #theme-simple .journal-reading .collapse-panel-wrapper {
-        background: var(--r-soft);
+        background: var(--r-code-bg);
         border-color: var(--r-line);
-        border-radius: 8px;
+        border-radius: 16px;
         box-shadow: none;
         backdrop-filter: none;
       }
@@ -366,7 +395,7 @@ export default function ArticleStyle() {
       #theme-simple .journal-reading .notion-hr {
         margin: 36px 0;
         border: 0;
-        border-top: 1px solid var(--r-line);
+        border-top: 1px solid var(--r-line) !important;
         height: 1px;
       }
       #theme-simple .journal-reading .notion-asset-wrapper {
@@ -386,7 +415,7 @@ export default function ArticleStyle() {
       }
       #theme-simple .journal-reading .notion-simple-table td,
       #theme-simple .journal-reading .notion-simple-table th {
-        padding: 12px 16px;
+        padding: 11px 12px;
         border-color: var(--r-line);
       }
       #theme-simple .journal-reading .journal-article-end,
@@ -395,19 +424,29 @@ export default function ArticleStyle() {
         color: var(--r-muted);
         margin-top: 48px;
       }
+      #theme-simple .journal-reading .notion-asset-wrapper img,
+      #theme-simple .journal-reading .notion-asset-wrapper video {
+        border-radius: 20px;
+      }
+      @media (max-width: 650px) {
+        #theme-simple .journal-reading .journal-article-meta {
+          grid-template-columns: 1fr;
+          gap: 22px;
+        }
+      }
       @media (max-width: 700px) {
         #theme-simple .journal-main.journal-reading {
-          padding: 28px 24px 56px;
+          padding: 48px 24px 56px;
         }
         #theme-simple .journal-reading .journal-back-link {
           margin-bottom: 30px;
         }
         #theme-simple .journal-reading .journal-article-header h1 {
-          font-size: 30px;
+          font-size: 46px;
         }
         #theme-simple .journal-reading .notion {
           font-size: 17px;
-          line-height: 1.85;
+          line-height: 1.65;
         }
         #theme-simple .journal-reading .notion-h1 {
           font-size: 27px;

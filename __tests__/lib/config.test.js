@@ -5,6 +5,10 @@ import BLOG from '@/blog.config'
 import { siteConfig } from '@/lib/config'
 
 describe('siteConfig', () => {
+  it('keeps the personal layout fixed and theme switching disabled', () => {
+    expect(siteConfig('THEME', 'heo', { THEME: 'heo' })).toBe('simple')
+    expect(siteConfig('THEME_SWITCH', true, { THEME_SWITCH: true })).toBe(false)
+  })
   const originalPostListStyle = BLOG.POST_LIST_STYLE
 
   afterEach(() => {

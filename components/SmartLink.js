@@ -55,7 +55,7 @@ const SmartLink = ({ href, children, ...rest }) => {
     const params = new URLSearchParams(queryString)
     const preserved = {}
     for (const [key, value] of params.entries()) {
-      if (value !== '') preserved[key] = value
+      if (key !== 'theme' && value !== '') preserved[key] = value
     }
     return preserved
   }
