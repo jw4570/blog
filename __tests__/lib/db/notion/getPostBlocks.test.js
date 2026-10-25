@@ -16,6 +16,24 @@ import {
 } from '@/lib/db/notion/normalizeExternalMediaBlock'
 
 describe('formatNotionBlock', () => {
+  it('preserves child-only quotes, nested headings and lists without mutating the source', () => {
+    const source = {
+      quote: { value: { id: 'quote', type: 'quote', content: ['heading', 'list'] } },
+      heading: { value: { id: 'heading', type: 'sub_sub_header', properties: { title: [['Heading']] } } },
+      list: { value: { id: 'list', type: 'bulleted_list', properties: { title: [['Item']] } } }
+    }
+    const result = formatNotionBlock(source)
+    expect(result.quote.value.properties).toEqual({ title: [] })
+    expect(result.quote.value.content).toEqual(['heading', 'list'])
+    expect(result.heading.value.type).toBe('sub_sub_header')
+    expect(result.list.value.type).toBe('bulleted_list')
+    expect(source.quote.value.properties).toBeUndefined()
+  })
+
+  it('retains rich text and color on quotes with their own text', () => {
+    const value = { id: 'quote', type: 'quote', properties: { title: [['Quote', [['b']]]] }, format: { block_color: 'blue' } }
+    expect(formatNotionBlock({ quote: { value } }).quote.value).toEqual(value)
+  })
   it('detects Apple Music single-track embed URLs', () => {
     expect(
       isAppleMusicEmbedUrl(

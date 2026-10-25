@@ -235,6 +235,15 @@ export default function ArticleStyle() {
         line-height: 1.65;
         word-break: inherit;
       }
+      #theme-simple .journal-reading .notion-quote > div:empty {
+        display: none;
+      }
+      #theme-simple .journal-reading .notion-quote > .notion-h:first-of-type {
+        margin-top: 0;
+      }
+      #theme-simple .journal-reading .notion-quote > .notion-text:last-child {
+        margin-bottom: 0 !important;
+      }
       #theme-simple .journal-reading .notion-callout {
         margin: 24px 0;
         padding: 18px 20px;
